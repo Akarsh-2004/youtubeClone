@@ -16,10 +16,14 @@ app.use(express.static("public")); // To serve static files
 app.use(cookieParser()); // To parse cookies
 
 // Your routes
-app.get('/', (req, res) => {
-    res.send('Welcome to the YouTube Clone Backend!');
+import userRouter from "./routes/user.routes.js"
+app.use("/api/v1/users", userRouter)
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found`,
+  });
 });
-
-
+// http://loaclhost:800/api/v1/users/register
 
 export default app;
