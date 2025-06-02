@@ -18,7 +18,7 @@ const registerUser = asyncHandler(async (req, res) => {
   
  /*get details */
   const {fullName, email, username, password}=req.body
-  console.log("email ", email);
+  console.log("email", email);
 
   /*check for rmpty fields*/
   if (fullName ==""){
@@ -36,8 +36,8 @@ const registerUser = asyncHandler(async (req, res) => {
 
 
   /*check for already existing user */
-  user.findOne({
-    $or: [{username}, {Email}]
+  const existedUser = await User.findOne({
+    $or: [{username}, {email}]
   })
   
   if(existedUser){
@@ -63,12 +63,12 @@ const registerUser = asyncHandler(async (req, res) => {
   }
 
   const user =await User.create({
-    fullname,
+    fullName,
     avatar: avatar.url,
     coverImage: coverImage?.url || "",
     email, 
     password,
-    username: username.toLowercae()
+    username: username.toLowerCase()
   })
   const createdUser= await User.findById(user._id).select(
     "-password -refreshToken"
