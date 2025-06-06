@@ -1,29 +1,37 @@
-// app.js (Example - you might have this code directly in index.js too)
 import express from 'express';
-import cors from 'cors'; // Example middleware
-import cookieParser from 'cookie-parser'; // Example middleware
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 
-// Your middleware setup
+// Middleware
 app.use(cors({
-    origin: process.env.CORS_ORIGIN, // Ensure CORS_ORIGIN is set in your .env
+    origin: process.env.CORS_ORIGIN,
     credentials: true
 }));
-app.use(express.json({ limit: "16kb" })); // To parse JSON bodies
-app.use(express.urlencoded({ extended: true, limit: "16kb" })); // To parse URL-encoded bodies
-app.use(express.static("public")); // To serve static files
-app.use(cookieParser()); // To parse cookies
+app.use(express.json({ limit: "16kb" }));
+app.use(express.urlencoded({ extended: true, limit: "16kb" }));
+app.use(express.static("public"));
+app.use(cookieParser());
 
-// Your routes
-import userRouter from "./routes/user.routes.js"
-app.use("/api/v1/users", userRouter)
+// Routes
+import userRouter from "./routes/user.routes.js";
+app.use("/api/v1/users", userRouter);
+
+// ✅ Root Route
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "Welcome to the YouTube Clone API 🎬",
+  });
+});
+
+// ❌ 404 handler
 app.use((req, res, next) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found`,
   });
 });
-// http://loaclhost:800/api/v1/users/register
 
 export default app;
