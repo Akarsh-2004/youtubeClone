@@ -1,56 +1,88 @@
 import { v2 as cloudinary } from 'cloudinary';
 import fs from "fs";
 
-// Configuration
-cloudinary.config({ 
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME, 
-    api_key: process.env.CLOUDINARY_API_KEY, 
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-// Upload function for local file path
 const uploadCloudinary = async (localFilePath) => {
     try {
-        if (!localFilePath) return null;
+        if (!localFilePath) {
+            return null;
+        }
+
         const response = await cloudinary.uploader.upload(localFilePath, {
             resource_type: "auto"
         });
-        console.log("File has been uploaded to Cloudinary");
+
+        console.log("File uploaded successfully. URL:", response.url);
+
+        // fs.unlinkSync(localFilePath);
+
         return response;
+
     } catch (error) {
-        console.error("Upload Error:", error);
+        console.error("Cloudinary Upload Error:", error);
+
+        // if (localFilePath && fs.existsSync(localFilePath)) {
+        //     fs.unlinkSync(localFilePath);
+        // }
+
         return null;
     }
 };
 
-// Main function
+export const deleteFromCloudinary = async (publicId) => {
+  try {
+    if (!publicId) {
+      return null;
+    }
+    const result = await cloudinary.uploader.destroy(publicId);
+    console.log("File deleted successfully. Result:", result);
+    return result;
+  } catch (error) {
+    console.error('Cloudinary Delete Error:', error);
+    return null;
+  }
+};
+
 (async function () {
-    // Example: Upload from remote URL directly (via 'upload' with `public_id`)
     try {
+        const demoRemoteImageUrl = 'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg';
+        console.log(`\n--- Demonstration: Uploading remote image and transformations ---`);
+        console.log(`Attempting to upload remote image: ${demoRemoteImageUrl}`);
+
         const uploadResult = await cloudinary.uploader.upload(
-            'https://res.cloudinary.com/demo/image/upload/getting-started/shoes.jpg',
-            { public_id: 'shoes', resource_type: "image" }
+            demoRemoteImageUrl,
+            {
+                public_id: 'shoes_demo_upload',
+                resource_type: "image"
+            }
         );
 
-        console.log("Upload Result:", uploadResult);
+        console.log("Demo Upload Result (URL):", uploadResult.url);
+        console.log("Demo Upload Result (Public ID):", uploadResult.public_id);
 
-        // Optimize delivery by resizing and applying auto-format and auto-quality
-        const optimizeUrl = cloudinary.url('shoes', {
+        const optimizeUrl = cloudinary.url(uploadResult.public_id, {
             fetch_format: 'auto',
             quality: 'auto'
         });
-        console.log("Optimized URL:", optimizeUrl);
+        console.log("Demo Optimized URL:", optimizeUrl);
 
-        // Transform the image: auto-crop to square aspect ratio
-        const autoCropUrl = cloudinary.url('shoes', {
+        const autoCropUrl = cloudinary.url(uploadResult.public_id, {
             crop: 'auto',
             gravity: 'auto',
             width: 500,
-            height: 500
+            height: 500,
+            fetch_format: 'auto',
+            quality: 'auto'
         });
-        console.log("Auto-Cropped URL:", autoCropUrl);
+        console.log("Demo Auto-Cropped URL:", autoCropUrl);
+
     } catch (error) {
-        console.error("Cloudinary Upload Error:", error);
+        console.error("Cloudinary Demonstration Error:", error);
     }
 })();
 
