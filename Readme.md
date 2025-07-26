@@ -1,2 +1,2 @@
-this is a fullstack youtube clone
-nknk,
+this is a backend youtube clone
+],
